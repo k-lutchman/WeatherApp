@@ -3,19 +3,32 @@ import UIKit
 class WeatherViewController: UIViewController {
     private let titleLabel = UILabel()
     private let stackView = UIStackView()
-    private let viewModel = WeatherViewModel()
-    private let activityIndicator = UIActivityIndicatorView(style: .large) // 🔄 Loading Spinner
+    private let activityIndicator = UIActivityIndicatorView(style: .large)
     
+    private let selectedCountry: String
+    private let viewModel: WeatherViewModel
+
+    
+    init(country: String) {
+        self.selectedCountry = country
+        self.viewModel = WeatherViewModel(country: country)
+        super.init(nibName: nil, bundle: nil)
+        self.title = "⛅️ Weather in \(country)"
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+        
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .paleBlue  
         setupUI()
         loadWeather()
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
-        
-        titleLabel.text = "Weather"
+        titleLabel.text = "Weather in \(selectedCountry)"
         titleLabel.font = UIFont.boldSystemFont(ofSize: 24)
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -27,7 +40,6 @@ class WeatherViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
         
-        // Activity Indicator Setup 🔄
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(activityIndicator)
         
@@ -45,14 +57,11 @@ class WeatherViewController: UIViewController {
     }
     
     private func loadWeather() {
-        activityIndicator.startAnimating() // Show spinner before fetching data 🔄
-        
+        activityIndicator.startAnimating()
         viewModel.fetchWeather {
             DispatchQueue.main.async {
-                self.activityIndicator.stopAnimating() // Hide spinner when done 🔄
-                
+                self.activityIndicator.stopAnimating()
                 print("Updating UI with \(self.viewModel.weatherData.count) cities")
-                
                 for weather in self.viewModel.weatherData {
                     let tile = self.createWeatherTile(for: weather)
                     self.stackView.addArrangedSubview(tile)
@@ -81,7 +90,6 @@ class WeatherViewController: UIViewController {
         
         tile.addSubview(label)
         tile.addSubview(imageView)
-        
         NSLayoutConstraint.activate([
             label.topAnchor.constraint(equalTo: tile.topAnchor, constant: 10),
             label.leadingAnchor.constraint(equalTo: tile.leadingAnchor, constant: 10),
@@ -90,7 +98,6 @@ class WeatherViewController: UIViewController {
             imageView.centerYAnchor.constraint(equalTo: tile.centerYAnchor),
             imageView.trailingAnchor.constraint(equalTo: tile.trailingAnchor, constant: -10)
         ])
-        
         return tile
     }
 }
