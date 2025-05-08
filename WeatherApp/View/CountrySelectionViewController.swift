@@ -1,9 +1,8 @@
 import UIKit
 
 class CountrySelectionViewController: UIViewController {
-
     private var collectionView: UICollectionView!
-
+    
     private let countries: [(name: String, emoji: String)] = [
         ("UK", "🇬🇧"),
         ("France", "🇫🇷"),
@@ -13,8 +12,9 @@ class CountrySelectionViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = "⛅️ Weather"
+        
         view.backgroundColor = .paleBlue
+        self.title = "⛅️ Weather"
         setupCollectionView()
     }
     
@@ -27,7 +27,7 @@ class CountrySelectionViewController: UIViewController {
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .paleBlue  
+        collectionView.backgroundColor = .clear  
         collectionView.dataSource = self
         collectionView.delegate = self
         
@@ -52,8 +52,7 @@ extension CountrySelectionViewController: UICollectionViewDataSource, UICollecti
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CountryCollectionViewCell.reuseIdentifier, for: indexPath) as? CountryCollectionViewCell else {
             return UICollectionViewCell()
         }
-        let country = countries[indexPath.item]
-        cell.configure(with: country)
+        cell.configure(with: countries[indexPath.item])
         return cell
     }
     
