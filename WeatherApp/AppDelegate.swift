@@ -10,10 +10,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         
         window = UIWindow(frame: UIScreen.main.bounds)
-        window?.rootViewController = WeatherViewController()
+        let countrySelectionVC = CountrySelectionViewController()
+        let navController = UINavigationController(rootViewController: countrySelectionVC)
+        window?.rootViewController = navController
         window?.makeKeyAndVisible()
         
         return true
     }
 }
-

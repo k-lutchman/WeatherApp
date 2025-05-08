@@ -10,8 +10,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = WeatherViewController()
+        
+        let countrySelectionVC = CountrySelectionViewController()
+        let navController = UINavigationController(rootViewController: countrySelectionVC)
+        
+        window?.rootViewController = navController
         window?.makeKeyAndVisible()
     }
 }
-
