@@ -7,7 +7,7 @@ class WeatherViewController: UIViewController {
     
     private let selectedCountry: String
     private let viewModel: WeatherViewModel
-
+    
     
     init(country: String) {
         self.selectedCountry = country
@@ -19,10 +19,11 @@ class WeatherViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-        
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .paleBlue  
+        
+        view.backgroundColor = .paleBlue
         setupUI()
         loadWeather()
     }
@@ -47,9 +48,9 @@ class WeatherViewController: UIViewController {
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
+            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
@@ -70,34 +71,49 @@ class WeatherViewController: UIViewController {
         }
     }
     
+    
     private func createWeatherTile(for weather: Weather) -> UIView {
-        let tile = UIView()
-        tile.backgroundColor = .systemBlue
-        tile.layer.cornerRadius = 10
-        tile.translatesAutoresizingMaskIntoConstraints = false
-        tile.heightAnchor.constraint(equalToConstant: 120).isActive = true
+        let cardView = WeatherCardView()
+        cardView.translatesAutoresizingMaskIntoConstraints = false
+        cardView.heightAnchor.constraint(equalToConstant: 120).isActive = true
         
         let label = UILabel()
-        label.text = "\(weather.city): \(weather.temperature)°C\nWind: \(weather.windSpeed)m/s\nHumidity: \(weather.humidity)%\nPrecipitation: \(weather.precipitation) mm"
-        label.textColor = .white
         label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
         label.translatesAutoresizingMaskIntoConstraints = false
+        
+        let boldAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: 16)]
+        let regularAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 16)]
+        let attributedText = NSMutableAttributedString()
+        
+        attributedText.append(NSAttributedString(string: "City: ", attributes: boldAttributes))
+        attributedText.append(NSAttributedString(string: "\(weather.city)\n", attributes: regularAttributes))
+        attributedText.append(NSAttributedString(string: "Temperature: ", attributes: boldAttributes))
+        attributedText.append(NSAttributedString(string: "\(weather.temperature)°C\n", attributes: regularAttributes))
+        attributedText.append(NSAttributedString(string: "Wind: ", attributes: boldAttributes))
+        attributedText.append(NSAttributedString(string: "\(weather.windSpeed)m/s\n", attributes: regularAttributes))
+        attributedText.append(NSAttributedString(string: "Humidity: ", attributes: boldAttributes))
+        attributedText.append(NSAttributedString(string: "\(weather.humidity)%\n", attributes: regularAttributes))
+        attributedText.append(NSAttributedString(string: "Precipitation: ", attributes: boldAttributes))
+        attributedText.append(NSAttributedString(string: "\(weather.precipitation) mm", attributes: regularAttributes))
+        
+        label.attributedText = attributedText
         
         let imageView = UIImageView(image: UIImage(systemName: "cloud.sun.fill"))
         imageView.tintColor = .white
         imageView.translatesAutoresizingMaskIntoConstraints = false
         
-        tile.addSubview(label)
-        tile.addSubview(imageView)
+        cardView.addSubview(label)
+        cardView.addSubview(imageView)
+        
         NSLayoutConstraint.activate([
-            label.topAnchor.constraint(equalTo: tile.topAnchor, constant: 10),
-            label.leadingAnchor.constraint(equalTo: tile.leadingAnchor, constant: 10),
+            label.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 10),
+            label.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 10),
             label.trailingAnchor.constraint(lessThanOrEqualTo: imageView.leadingAnchor, constant: -10),
             
-            imageView.centerYAnchor.constraint(equalTo: tile.centerYAnchor),
-            imageView.trailingAnchor.constraint(equalTo: tile.trailingAnchor, constant: -10)
+            imageView.centerYAnchor.constraint(equalTo: cardView.centerYAnchor),
+            imageView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -10)
         ])
-        return tile
+        
+        return cardView
     }
 }
