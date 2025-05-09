@@ -1,13 +1,24 @@
 import UIKit
 
-final class WeatherViewController: UIViewController {
+final class WeatherViewController: UIViewController, UIScrollViewDelegate {
+    
+    // MARK: - Views
+    
     private let titleLabel = UILabel()
+    private let scrollView = UIScrollView()
     private let stackView = UIStackView()
     private let activityIndicator = UIActivityIndicatorView(style: .large)
+    
+    // MARK: - Properties
     
     private let selectedCountry: String
     private let countryEmoji: String
     private let viewModel: WeatherViewModel
+    
+    // Fade height relative to Scroll-View visible area.
+    private let fadeZone: CGFloat = 50.0
+    
+    // MARK: - Initialiser
     
     init(country: (name: String, emoji: String)) {
         self.selectedCountry = country.name
@@ -24,9 +35,12 @@ final class WeatherViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .paleBlue
+        scrollView.delegate = self
         setupUI()
         loadWeather()
     }
+    
+    // MARK: - UI Setup
     
     private func setupUI() {
         titleLabel.text = "Weather in \(selectedCountry)"
@@ -35,12 +49,14 @@ final class WeatherViewController: UIViewController {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
         
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scrollView)
+        
         stackView.axis = .vertical
-        stackView.distribution = .fillEqually
+        stackView.distribution = .fill
         stackView.spacing = UIConstants.stackSpacing
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stackView)
-        
+        scrollView.addSubview(stackView)
         
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(activityIndicator)
@@ -49,14 +65,22 @@ final class WeatherViewController: UIViewController {
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: UIConstants.topPadding),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: UIConstants.stackSpacing),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: UIConstants.stackHorizontalPadding),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -UIConstants.stackHorizontalPadding),
+            scrollView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: UIConstants.stackSpacing),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: UIConstants.stackHorizontalPadding),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -UIConstants.stackHorizontalPadding),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
             
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
+    
+    // MARK: - Data Loading
     
     private func loadWeather() {
         activityIndicator.startAnimating()
@@ -72,17 +96,17 @@ final class WeatherViewController: UIViewController {
         }
     }
     
+    // MARK: - Weather-Card Creation
+    
     private func createWeatherTile(for weather: Weather) -> UIView {
         let cardView = WeatherCardView()
         cardView.translatesAutoresizingMaskIntoConstraints = false
         cardView.alpha = 0.0
         cardView.heightAnchor.constraint(equalToConstant: UIConstants.weatherTileHeight).isActive = true
         
-        
         let label = UILabel()
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
-        
         
         let boldAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: 16)]
         let regularAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 16)]
@@ -99,11 +123,9 @@ final class WeatherViewController: UIViewController {
         attributedText.append(NSAttributedString(string: "\(weather.precipitation) mm", attributes: regularAttributes))
         label.attributedText = attributedText
         
-        
         let imageView = UIImageView(image: UIImage(systemName: "cloud.sun.fill"))
         imageView.tintColor = .white
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        
         
         cardView.addSubview(label)
         cardView.addSubview(imageView)
@@ -117,14 +139,52 @@ final class WeatherViewController: UIViewController {
             imageView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -UIConstants.cardPadding)
         ])
         
-        
+        // Apply initial fade-in 0.8 seconds.
         cardView.transform = CGAffineTransform(scaleX: 0.90, y: 0.90)
-        // Animate fade-in 0.8 seconds.
-        UIView.animate(withDuration: 0.8, delay: 0, options: [.curveEaseOut], animations: {
+        UIView.animate(withDuration: 0.8,
+                       delay: 0,
+                       options: [.curveEaseOut],
+                       animations: {
             cardView.alpha = 1.0
             cardView.transform = .identity
         }, completion: nil)
         
         return cardView
+    }
+    
+    // MARK: - Scroll-View Delegate
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        updateCardAlphas()
+    }
+    
+    // MARK: - Update Card Alphas Based on Scroll Position
+    
+    private func updateCardAlphas() {
+        // Scroll view at top (not yet scrolling) leave all cards fully visable.
+        if scrollView.contentOffset.y <= 0 {
+            for card in stackView.arrangedSubviews {
+                card.alpha = 1.0
+            }
+            return
+        }
+        
+        // Otherwise show visible boundaries of scroll view.
+        let visibleTop = scrollView.frame.minY
+        let visibleBottom = scrollView.frame.maxY
+        
+        for card in stackView.arrangedSubviews {
+            let cardFrame = card.convert(card.bounds, to: view)
+            let cardCenterY = cardFrame.midY
+            
+            var newAlpha: CGFloat = 1.0
+            
+            if cardCenterY < (visibleTop + fadeZone) {
+                newAlpha = (cardCenterY - visibleTop) / fadeZone
+            } else if cardCenterY > (visibleBottom - fadeZone) {
+                newAlpha = (visibleBottom - cardCenterY) / fadeZone
+            }
+            card.alpha = max(0.0, min(1.0, newAlpha))
+        }
     }
 }
