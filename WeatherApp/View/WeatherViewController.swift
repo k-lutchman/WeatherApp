@@ -8,7 +8,8 @@ class WeatherViewController: UIViewController {
     private let selectedCountry: String
     private let countryEmoji: String
     private let viewModel: WeatherViewModel
-
+    
+    
     init(country: (name: String, emoji: String)) {
         self.selectedCountry = country.name
         self.countryEmoji = country.emoji
@@ -17,13 +18,10 @@ class WeatherViewController: UIViewController {
         self.title = "⛅️ Weather in \(country.emoji) \(country.name)"
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = .paleBlue
         setupUI()
         loadWeather()
@@ -38,7 +36,7 @@ class WeatherViewController: UIViewController {
         
         stackView.axis = .vertical
         stackView.distribution = .fillEqually
-        stackView.spacing = 10
+        stackView.spacing = UIConstants.stackSpacing
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
         
@@ -46,12 +44,12 @@ class WeatherViewController: UIViewController {
         view.addSubview(activityIndicator)
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: UIConstants.topPadding),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: UIConstants.stackSpacing),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: UIConstants.stackHorizontalPadding),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -UIConstants.stackHorizontalPadding),
             
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
@@ -60,11 +58,9 @@ class WeatherViewController: UIViewController {
     
     private func loadWeather() {
         activityIndicator.startAnimating()
-        viewModel.fetchWeather { [weak self] in
+        viewModel.fetchWeather {
             DispatchQueue.main.async {
-                guard let self = self else { return }
                 self.activityIndicator.stopAnimating()
-                print("Updating UI with \(self.viewModel.weatherData.count) cities")
                 self.stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
                 for weather in self.viewModel.weatherData {
                     let tile = self.createWeatherTile(for: weather)
@@ -74,11 +70,10 @@ class WeatherViewController: UIViewController {
         }
     }
     
-    
     private func createWeatherTile(for weather: Weather) -> UIView {
         let cardView = WeatherCardView()
         cardView.translatesAutoresizingMaskIntoConstraints = false
-        cardView.heightAnchor.constraint(equalToConstant: 120).isActive = true
+        cardView.heightAnchor.constraint(equalToConstant: UIConstants.weatherTileHeight).isActive = true
         
         let label = UILabel()
         label.numberOfLines = 0
@@ -109,12 +104,11 @@ class WeatherViewController: UIViewController {
         cardView.addSubview(imageView)
         
         NSLayoutConstraint.activate([
-            label.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 10),
-            label.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 10),
-            label.trailingAnchor.constraint(lessThanOrEqualTo: imageView.leadingAnchor, constant: -10),
-            
+            label.topAnchor.constraint(equalTo: cardView.topAnchor, constant: UIConstants.cardPadding),
+            label.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: UIConstants.cardPadding),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: imageView.leadingAnchor, constant: -UIConstants.cardPadding),
             imageView.centerYAnchor.constraint(equalTo: cardView.centerYAnchor),
-            imageView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -10)
+            imageView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -UIConstants.cardPadding)
         ])
         
         return cardView

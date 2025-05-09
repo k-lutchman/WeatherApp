@@ -5,7 +5,6 @@ class CountrySelectionViewController: UIViewController {
     private let continent: String
     private var countries: [(name: String, emoji: String)] = []
     
-    
     init(continent: (name: String, emoji: String)) {
         self.continent = continent.name
         super.init(nibName: nil, bundle: nil)
@@ -33,7 +32,7 @@ class CountrySelectionViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+   
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .paleBlue
@@ -42,10 +41,10 @@ class CountrySelectionViewController: UIViewController {
     
     private func setupCollectionView() {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 150, height: 80)
-        layout.minimumLineSpacing = 20
-        layout.minimumInteritemSpacing = 20
-        layout.sectionInset = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+        layout.itemSize = UIConstants.cellItemSize
+        layout.minimumLineSpacing = UIConstants.cellLineSpacing
+        layout.minimumInteritemSpacing = UIConstants.cellInteritemSpacing
+        layout.sectionInset = UIConstants.cellSectionInset
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
