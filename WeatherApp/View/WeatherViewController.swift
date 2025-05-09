@@ -6,14 +6,15 @@ class WeatherViewController: UIViewController {
     private let activityIndicator = UIActivityIndicatorView(style: .large)
     
     private let selectedCountry: String
+    private let countryEmoji: String
     private let viewModel: WeatherViewModel
-    
-    
-    init(country: String) {
-        self.selectedCountry = country
-        self.viewModel = WeatherViewModel(country: country)
+
+    init(country: (name: String, emoji: String)) {
+        self.selectedCountry = country.name
+        self.countryEmoji = country.emoji
+        self.viewModel = WeatherViewModel(country: country.name)
         super.init(nibName: nil, bundle: nil)
-        self.title = "⛅️ Weather in \(country)"
+        self.title = "⛅️ Weather in \(country.emoji) \(country.name)"
     }
     
     required init?(coder: NSCoder) {
@@ -59,10 +60,12 @@ class WeatherViewController: UIViewController {
     
     private func loadWeather() {
         activityIndicator.startAnimating()
-        viewModel.fetchWeather {
+        viewModel.fetchWeather { [weak self] in
             DispatchQueue.main.async {
+                guard let self = self else { return }
                 self.activityIndicator.stopAnimating()
                 print("Updating UI with \(self.viewModel.weatherData.count) cities")
+                self.stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
                 for weather in self.viewModel.weatherData {
                     let tile = self.createWeatherTile(for: weather)
                     self.stackView.addArrangedSubview(tile)
