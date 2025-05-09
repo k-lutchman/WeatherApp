@@ -4,4 +4,5 @@ App made using API from https://open-meteo.com/
 
 App made using MVVM
 
-![simulator_screenshot_DEA52A08-53F0-4431-950D-990D4696C560](https://github.com/user-attachments/assets/6f68a102-73bf-4e5d-9e19-c2f5d0605b6a)
+
+![simulator_screenshot_75D7D036-74A0-4EEB-8AC6-9A74D29DCBEB](https://github.com/user-attachments/assets/45ec977b-ad1e-45e8-89af-86e1ba4aa156)
