@@ -5,7 +5,7 @@ struct UIConstants {
     static let cardCornerRadius: CGFloat = 10.0
     static let cardPadding: CGFloat = 10.0
     
-    // CollectionView Layout (Continents, countries)
+    // CollectionView Layout (Continents, Countries)
     static let cellItemSize: CGSize = CGSize(width: 150, height: 80)
     static let cellLineSpacing: CGFloat = 20.0
     static let cellInteritemSpacing: CGFloat = 20.0
