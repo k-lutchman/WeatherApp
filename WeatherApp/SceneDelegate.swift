@@ -3,6 +3,11 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     
+    func createRootNavigationController() -> UINavigationController {
+        let continentSelectionVC = ContinentSelectionViewController()
+        return UINavigationController(rootViewController: continentSelectionVC)
+    }
+    
     func scene(
         _ scene: UIScene,
         willConnectTo session: UISceneSession,
@@ -10,11 +15,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        
-        let countrySelectionVC = CountrySelectionViewController()
-        let navController = UINavigationController(rootViewController: countrySelectionVC)
-        
-        window?.rootViewController = navController
+        window?.rootViewController = createRootNavigationController()
         window?.makeKeyAndVisible()
     }
 }

@@ -55,7 +55,7 @@ class CountryCollectionViewCell: UICollectionViewCell {
         
         let nameAttributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.boldSystemFont(ofSize: 20),
-            .foregroundColor: UIColor.black  
+            .foregroundColor: UIColor.black
         ]
         
         attributedText.append(NSAttributedString(string: "\(country.emoji) ", attributes: emojiAttributes))
